@@ -6,7 +6,7 @@ import numpy as np
 # Dumb Dino V1 (high score 724)
 # half stolen from https://becominghuman.ai/google-chrome-dinosaur-game-python-bot-b698723e86e
 
-class Bot:
+class DinoBot:
     """Bot for playing Chrome dino run game"""
     def __init__(self):
         self.restart_area = (350, 230, 610, 260)
@@ -98,5 +98,5 @@ class Bot:
                 print("restarting!")
             if detection_mean != 416.5:
                 self.jump()
-bot = Bot()
+bot = DinoBot()
 bot.main()
