@@ -54,7 +54,6 @@ class DinoBot:
         :return: None
         """
         pyautogui.keyDown('space')
-        time.sleep(0.08   )
         pyautogui.keyUp('space')
 
     def duck(self):
@@ -78,6 +77,7 @@ class DinoBot:
                 self.retries += 1
                 print("restarting!")
                 print("game number: "+ str(self.retries))
+                time.sleep(3)
             if area_mean(self.low_detection_area) < self.low_detection_trigger - self.epsilon or area_mean(self.low_detection_area) > self.low_detection_trigger + self.epsilon:
                 self.jump()
             elif area_mean(self.high_detection_area) < self.high_detection_trigger - self.epsilon or area_mean(self.high_detection_area) > self.high_detection_trigger + self.epsilon:
