@@ -1,4 +1,4 @@
-from PIL import ImageGrab, ImageOps
+from PIL import ImageGrab, ImageOps, ImageDraw
 import pyautogui
 import time
 import numpy as np
@@ -40,6 +40,7 @@ class DinoBot:
         self.low_detection_area = low_detection_area
         self.high_detection_area = high_detection_area
         self.epsilon = epsilon
+        self.daytime = False
 
     def restart(self):
         """
