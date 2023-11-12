@@ -60,8 +60,8 @@ class DinoBot:
         image = ImageGrab.grab(area)
         gray_img = ImageOps.grayscale(image)
         arr = np.array(gray_img.getcolors())
-        # print(arr.mean())
-        return arr.mean()
+        # print(arr.median())
+        return arr.median()
 
     def draw_area_box(self):
         """
@@ -83,20 +83,20 @@ class DinoBot:
         """
         #self.restart()
         #self.draw_area_box()
-        detection_mean = 0
-        restart_mean = 0
+        detection_median = 0
+        restart_median = 0
         while True:
-            if detection_mean != self.detection_area(self.area):
-                detection_mean = self.detection_area(self.area)
-                print("Detection area mean: " + str(detection_mean))
-            if restart_mean != self.detection_area(self.restart_area):
-                restart_mean = self.detection_area(self.restart_area)
-                # print("Restart area mean: " + str(restart_mean))
+            if detection_median != self.detection_area(self.area):
+                detection_median = self.detection_area(self.area)
+                print("Detection area median: " + str(detection_median))
+            if restart_median != self.detection_area(self.restart_area):
+                restart_median = self.detection_area(self.restart_area)
+                # print("Restart area median: " + str(restart_median))
 
-            if 65 < restart_mean < 85:
+            if 65 < restart_median < 85:
                 self.restart()
                 print("restarting!")
-            if detection_mean != 416.5:
+            if detection_median != 416.5:
                 self.jump()
 bot = DinoBot()
 bot.main()
