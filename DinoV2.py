@@ -17,15 +17,15 @@ def load_config(file_path='config.json'):
         return None
 
 
-def area_median(area):
+def area_mean(area):
     """
-    returns the median value of a screen area
+    returns the mean value of a screen area
     :return: float
     """
     image = ImageGrab.grab(area)
     gray_img = ImageOps.grayscale(image)
     arr = np.array(gray_img.getcolors())
-    return arr.median()
+    return arr.mean()
 
 class DinoBot:
     """FSA for playing silly little brave dino game"""
@@ -66,12 +66,12 @@ class DinoBot:
         """
         while True:
 
-            if self.restart_trigger-self.epsilon < area_median(self.restart_area) < self.restart_trigger+self.epsilon:
+            if self.restart_trigger-self.epsilon < area_mean(self.restart_area) < self.restart_trigger+self.epsilon:
                 self.restart()
                 self.retries += 1
                 print("restarting!")
                 print("game number: "+ str(self.retries))
-            if area_median(self.low_detection_area) < self.low_detection_trigger - self.epsilon or area_median(self.low_detection_area) > self.low_detection_trigger + self.epsilon:
+            if area_mean(self.low_detection_area) < self.low_detection_trigger - self.epsilon or area_mean(self.low_detection_area) > self.low_detection_trigger + self.epsilon:
                 self.jump()
 
 # Load configuration values
@@ -82,11 +82,11 @@ if loaded_config:
     low_detection_area = loaded_config['low_detection_area']
     high_detection_area = loaded_config['high_detection_area']
     restart_area = loaded_config['restart_area']
-    low_detection_median = loaded_config['detection_median']
-    high_detection_median = loaded_config['high_detection_median']
-    restart_median = loaded_config['restart_median']
+    low_detection_mean = loaded_config['detection_mean']
+    high_detection_mean = loaded_config['high_detection_mean']
+    restart_mean = loaded_config['restart_mean']
     epsilon = loaded_config['epsilon']
 
     # Create DinoBot instance and run
-    bot = DinoBot(dino_coord, restart_coord, low_detection_area, high_detection_area, restart_area, low_detection_median, high_detection_median, restart_median, epsilon)
+    bot = DinoBot(dino_coord, restart_coord, low_detection_area, high_detection_area, restart_area, low_detection_mean, high_detection_mean, restart_mean, epsilon)
     bot.run()

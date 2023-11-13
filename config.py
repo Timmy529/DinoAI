@@ -34,7 +34,7 @@ restart_bottom_right = pyautogui.position()
 restart_area = (restart_top_left[0], restart_top_left[1], restart_bottom_right[0], restart_bottom_right[1])
 
 input("press enter to calculate the restart_median...")
-restart_mean = area_mean(restart_area)
+restart_image = ImageOps.grayscale(ImageGrab.grab(restart_area))
 
 input("select the restart button and press enter...")
 restart_coord = pyautogui.position()
@@ -75,8 +75,6 @@ dino_area = (top_left_dino_coord[0], top_left_dino_coord[1], bottom_right_dino_c
 
 dino_median = area_median(high_detection_area)
 
-
-
 screenshot = ImageGrab.grab()
 
 input("select the ground truth (time) pixel and press enter...")
@@ -86,7 +84,7 @@ epsilon = int(input("enter the acceptable range for error in values (epsilon): "
 
 config_data = {
     'restart_area': restart_area,
-    'restart_mean': restart_mean,
+    'restart_image': np.array(restart_image).tolist(),
     'restart_coord': restart_coord,
     'low_detection_area': low_detection_area,
     'low_detection_median': low_detection_median,

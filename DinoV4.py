@@ -5,7 +5,6 @@ import numpy as np
 import pyautogui
 from PIL import ImageGrab, ImageOps
 
-
 def load_config(file_path='config.json'):
     try:
         with open(file_path, 'r') as config_file:
@@ -19,32 +18,11 @@ def load_config(file_path='config.json'):
         return None
 
 
-def area_median(area):
-    """
-    returns the number of pixels that have the median color of a screen area
-    :return: float
-    """
-    image = ImageGrab.grab(area)
-    gray_img = ImageOps.grayscale(image)
-    arr = np.array(gray_img.getcolors())
-    return np.median(arr)
-
-def area_mean(area):
-    """
-    returns the number of pixels that have the mean color of a screen area
-    :return: float
-    """
-    image = ImageGrab.grab(area)
-    gray_img = ImageOps.grayscale(image)
-    arr = np.array(gray_img.getcolors())
-    return np.mean(arr)
-
-
 class DinoBot:
     """FSA for playing silly little brave dino game"""
 
     def __init__(self, restart_coords, low_detection_area, high_detection_area, restart_area,
-                 low_detection_trigger, high_detection_trigger, restart_trigger, epsilon):
+                 low_detection_trigger, high_detection_trigger, restart_trigger, time_pixel, epsilon):
         self.retries = 0
         self.restart_trigger = restart_trigger
         self.low_detection_trigger = low_detection_trigger
@@ -59,20 +37,34 @@ class DinoBot:
         self.ducks = 0
         self.start_time = time.time()
         self.velocity = 0
+        self.time_pixel = time_pixel
+        self.current_screenshot = None  # Reference to the current screenshot
 
-    def restart(self):
+    def update_screenshot(self):
         """
-        Restart the game and set default crawl run
+        Capture the current screenshot and update the reference.
         :return: None
         """
-        time.sleep(0.5)
-        pyautogui.click(self.restart_coords)
-        self.jumps = 0
-        self.ducks = 0
-        self.retries += 1
-        self.start_time = time.time()
-        print("restarting!")
-        print("game number: " + str(self.retries))
+        screen = ImageGrab.grab()
+        self.current_screenshot = ImageOps.grayscale(screen)
+
+    def area_mean(self, area):
+        """
+        Returns the number of pixels that have the mean color of a screen area.
+        :return: float
+        """
+        sub_area = self.current_screenshot.crop(area)
+        arr = np.array(sub_area.getcolors())
+        return np.mean(arr)
+
+    def area_median(self, area):
+        """
+        Returns the number of pixels that have the median color of a screen area.
+        :return: float
+        """
+        sub_area = self.current_screenshot.crop(area)
+        arr = np.array(sub_area.getcolors())
+        return np.median(arr)
 
     def jump(self):
         """
@@ -95,26 +87,52 @@ class DinoBot:
         self.ducks += 1
         print("ducks: "+str(self.ducks))
 
+    def restart(self):
+        """
+        Restart the game and set the default crawl run.
+        :return: None
+        """
+        print("restarting!")
+        time.sleep(1)
+        pyautogui.click(self.restart_coords)
+        self.jumps = 0
+        self.ducks = 0
+        self.retries += 1
+        self.start_time = time.time()
+        print("game number: " + str(self.retries))
+
     def run(self):
         """
-        Main loop of the playing
+        Main loop of the playing.
         :return: None
         """
         while True:
+
+            self.update_screenshot()  # Capture the current screenshot
+
+            if self.current_screenshot.getpixel(self.time_pixel) == 255:
+                low_detection_median = self.low_detection_trigger[1]
+                high_detection_median = self.high_detection_trigger[1]
+            else:
+                low_detection_median = self.low_detection_trigger[0]
+                high_detection_median = self.high_detection_trigger[0]
+
             print("velocity: "+str(self.velocity))
             if self.velocity < 100:
                 self.velocity = time.time() - self.start_time
-            if self.restart_trigger - self.epsilon < area_mean(self.restart_area) < self.restart_trigger + self.epsilon:
+            if np.array(self.current_screenshot.crop(self.restart_area)).tolist() == self.restart_trigger:
                 self.restart()
-                time.sleep(3)
-            offset = (self.low_detection_area[0] + self.velocity, self.low_detection_area[1] , self.low_detection_area[2] + self.velocity, self.low_detection_area[3])
-            high_offset = (self.high_detection_area[0] + self.velocity, self.high_detection_area[1] , self.high_detection_area[2] + self.velocity, self.high_detection_area[3])
-            if area_median(offset) < self.low_detection_trigger - self.epsilon or area_median(
-                    offset) > self.low_detection_trigger + self.epsilon:
+            offset = (self.low_detection_area[0] + self.velocity, self.low_detection_area[1],
+                      self.low_detection_area[2] + self.velocity, self.low_detection_area[3])
+            high_offset = (self.high_detection_area[0] + self.velocity, self.high_detection_area[1],
+                           self.high_detection_area[2] + self.velocity, self.high_detection_area[3])
+            if self.area_median(offset) < low_detection_median - self.epsilon or self.area_median(
+                    offset) > low_detection_median + self.epsilon:
                 self.jump()
-            elif area_median(high_offset) < self.high_detection_trigger - self.epsilon or area_median(
-                    high_offset) > self.high_detection_trigger + self.epsilon:
+            elif self.area_median(high_offset) < high_detection_median - self.epsilon or self.area_median(
+                    high_offset) > high_detection_median + self.epsilon:
                 self.duck()
+
 
 # Load configuration values
 loaded_config = load_config()
@@ -125,12 +143,12 @@ if loaded_config:
     restart_area = loaded_config['restart_area']
     low_detection_median = loaded_config['low_detection_median']
     high_detection_median = loaded_config['high_detection_median']
-    restart_mean = loaded_config['restart_mean']
+    restart_img = loaded_config['restart_img']
     epsilon = loaded_config['epsilon']
     time_pixel = loaded_config['time_pixel']
 
 
     # Create DinoBot instance and run
     bot = DinoBot(restart_coord, low_detection_area, high_detection_area, restart_area, low_detection_median,
-                  high_detection_median, restart_mean, epsilon)
+                  high_detection_median, restart_img, time_pixel, epsilon)
     bot.run()
