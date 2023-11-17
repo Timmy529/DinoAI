@@ -75,6 +75,31 @@ class Dinosaur:
             self.dino_run = True
             self.dino_jump = False
 
+    def agent_update(self, aiInput):
+        if self.dino_duck:
+            self.duck()
+        if self.dino_run:
+            self.run()
+        if self.dino_jump:
+            self.jump()
+
+        if self.step_index >= 10:
+            self.step_index = 0
+
+        if aiInput[0] > 0.5 and not self.dino_jump:
+            self.dino_duck = False
+            self.dino_run = False
+            self.dino_jump = True
+        elif aiInput[1] > 0.5 and not self.dino_jump:
+            self.dino_duck = True
+            self.dino_run = False
+            self.dino_jump = False
+        elif not (self.dino_jump or aiInput[1] > 0.5):
+            self.dino_duck = False
+            self.dino_run = True
+            self.dino_jump = False
+
+
     def duck(self):
         self.image = self.duck_img[self.step_index // 5]
         self.dino_rect = self.image.get_rect()
@@ -221,8 +246,78 @@ def main():
             obstacle.draw(SCREEN)
             obstacle.update()
             if player.dino_rect.colliderect(obstacle.rect):
-                pygame.time.delay(2000)
                 run = False
+        background()
+
+        cloud.draw(SCREEN)
+        cloud.update()
+
+        score()
+
+        clock.tick(30)
+        pygame.display.update()
+
+def eval_genome():
+    global game_speed, x_pos_bg, y_pos_bg, points, obstacles
+    run = True
+    clock = pygame.time.Clock()
+    dinos = [Dinosaur() for x in range(100)]
+    cloud = Cloud()
+    game_speed = 20
+    x_pos_bg = 0
+    y_pos_bg = 380
+    points = 0
+    font = pygame.font.Font('freesansbold.ttf', 20)
+    obstacles = []
+    death_count = 0
+
+    def score():
+        global points, game_speed
+        points += 1
+        if points % 100 == 0:
+            game_speed += 1
+
+        text = font.render("Points: " + str(points), True, (0, 0, 0))
+        textRect = text.get_rect()
+        textRect.center = (1000, 40)
+        SCREEN.blit(text, textRect)
+
+    def background():
+        global x_pos_bg, y_pos_bg
+        image_width = BG.get_width()
+        SCREEN.blit(BG, (x_pos_bg, y_pos_bg))
+        SCREEN.blit(BG, (image_width + x_pos_bg, y_pos_bg))
+        if x_pos_bg <= -image_width:
+            SCREEN.blit(BG, (image_width + x_pos_bg, y_pos_bg))
+            x_pos_bg = 0
+        x_pos_bg -= game_speed
+
+    while len(dinos) > 0:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
+
+        SCREEN.fill((255, 255, 255))
+        userInput = pygame.key.get_pressed()
+
+        for dino in dinos:
+            dino.draw(SCREEN)
+            dino.agent_update([random.randint(0, 10) / 10 for x in range(2)])
+
+        if len(obstacles) == 0:
+            if random.randint(0, 2) == 0:
+                obstacles.append(SmallCactus(SMALL_CACTUS))
+            elif random.randint(0, 2) == 1:
+                obstacles.append(LargeCactus(LARGE_CACTUS))
+            elif random.randint(0, 2) == 2:
+                obstacles.append(Bird(BIRD))
+
+        for obstacle in obstacles:
+            obstacle.draw(SCREEN)
+            obstacle.update()
+            for dino in dinos:
+                if dino.dino_rect.colliderect(obstacle.rect):
+                    dinos.remove(dino)
         background()
 
         cloud.draw(SCREEN)
@@ -235,7 +330,6 @@ def main():
 
 while True:
     main()
-
 """
 def menu(death_count):
     global points
