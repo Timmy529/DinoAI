@@ -1,8 +1,6 @@
 import pygame
 import os
 import random
-import neat
-
 pygame.init()
 
 # Global Constants
@@ -30,7 +28,6 @@ CLOUD = pygame.image.load(os.path.join("Assets/Other", "Cloud.png"))
 
 BG = pygame.image.load(os.path.join("Assets/Other", "Track.png"))
 
-gen = 0
 
 class Dinosaur:
     X_POS = 80
@@ -73,8 +70,6 @@ class Dinosaur:
             self.dino_duck = True
             self.dino_run = False
             self.dino_jump = False
-        elif userInput[pygame.K_DOWN] and self.dino_jump:
-            self.jump_vel -= self.JUMP_VEL
         elif not (self.dino_jump or userInput[pygame.K_DOWN]):
             self.dino_duck = False
             self.dino_run = True
@@ -168,27 +163,11 @@ class Bird(Obstacle):
         self.index += 1
 
 
-def eval_genomes(genomes, config):
-    global game_speed, x_pos_bg, y_pos_bg, points, obstacles, WIN, gen
+def main():
+    global game_speed, x_pos_bg, y_pos_bg, points, obstacles
     run = True
     clock = pygame.time.Clock()
-    win = WIN
-    gen += 1
-
-    # start by creating lists holding the genome itself, the
-    # neural network associated with the genome and the
-    # bird object that uses that network to play
-    nets = []
-    dinos = []
-    ge = []
-
-    for genome_id, genome in genomes:
-        genome.fitness = 0  # start with fitness level of 0
-        net = neat.nn.FeedForwardNetwork.create(genome, config)
-        nets.append(net)
-        dinos.append(Dinosaur())
-        ge.append(genome)
-
+    player = Dinosaur()
     cloud = Cloud()
     game_speed = 20
     x_pos_bg = 0
@@ -196,6 +175,7 @@ def eval_genomes(genomes, config):
     points = 0
     font = pygame.font.Font('freesansbold.ttf', 20)
     obstacles = []
+    death_count = 0
 
     def score():
         global points, game_speed
@@ -207,11 +187,6 @@ def eval_genomes(genomes, config):
         textRect = text.get_rect()
         textRect.center = (1000, 40)
         SCREEN.blit(text, textRect)
-        text = font.render("Generation: " + str(points), True, (0, 0, 0))
-        textRect = text.get_rect()
-        textRect.center = (1000, 40)
-        SCREEN.blit(text, textRect)
-
 
     def background():
         global x_pos_bg, y_pos_bg
@@ -229,9 +204,10 @@ def eval_genomes(genomes, config):
                 run = False
 
         SCREEN.fill((255, 255, 255))
+        userInput = pygame.key.get_pressed()
 
-        for dino in dinos:
-            dino.draw(SCREEN)
+        player.draw(SCREEN)
+        player.update(userInput)
 
         if len(obstacles) == 0:
             if random.randint(0, 2) == 0:
@@ -244,10 +220,11 @@ def eval_genomes(genomes, config):
         for obstacle in obstacles:
             obstacle.draw(SCREEN)
             obstacle.update()
-            for dino in dinos:
-                if dino.dino_rect.colliderect(obstacle.rect):
-                    # Dino has been killed
-                    dinos.remove(dino)
+            if player.dino_rect.colliderect(obstacle.rect):
+                pygame.time.delay(2000)
+                death_count += 1
+                menu(death_count)
+
         background()
 
         cloud.draw(SCREEN)
@@ -258,12 +235,10 @@ def eval_genomes(genomes, config):
         clock.tick(30)
         pygame.display.update()
 
-
 """
 def menu(death_count):
     global points
-    run = True
-    while run:
+    while True:
         SCREEN.fill((255, 255, 255))
         font = pygame.font.Font('freesansbold.ttf', 30)
 
@@ -282,8 +257,9 @@ def menu(death_count):
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
-            if event.type == pygame.KEYDOWN:
+                exit()
+            elif event.type == pygame.KEYDOWN:
                 main()
 """
+
 # menu(death_count=0)
