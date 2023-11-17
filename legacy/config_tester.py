@@ -43,11 +43,8 @@ loaded_config = load_config()
 if loaded_config:
     restart_coord = loaded_config['restart_coord']
     low_detection_area = loaded_config['low_detection_area']
-    high_detection_area = loaded_config['high_detection_area']
     restart_area = loaded_config['restart_area']
     low_detection_median = loaded_config['low_detection_median']
-    high_detection_median = loaded_config['high_detection_median']
-    restart_median = loaded_config['restart_median']
     epsilon = loaded_config['epsilon']
     time_pixel = loaded_config['time_pixel']
     dino_area = loaded_config['dino_area']
@@ -60,8 +57,6 @@ image = ImageGrab.grab()
 draw = ImageDraw.Draw(image)
 left, top, right, bottom = low_detection_area
 draw.rectangle([left, top, right, bottom], outline="red", width=2)
-left, top, right, bottom = high_detection_area
-draw.rectangle([left, top, right, bottom], outline="blue", width=2)
 left, top, right, bottom = restart_area
 draw.rectangle([left, top, right, bottom], outline="green", width=2)
 left, top, right, bottom = dino_area
@@ -71,25 +66,21 @@ image.show()
 while True:
     # Calculate current medians
     current_low_median = area_median(low_detection_area)
-    current_high_median = area_median(high_detection_area)
     current_restart_median = area_mean(restart_area)
     current_dino_median = area_median(dino_area)
 
     # Check if values have changed
     if (
             current_low_median != prev_low_median or
-            current_high_median != prev_high_median or
             current_restart_median != prev_restart_median or
             current_dino_median != prev_dino_median
     ):
         # Print only if values have changed
         print("low_detection_area_median: " + str(current_low_median))
-        print("high_detection_area_median: " + str(current_high_median))
         print("restart_area_median: " + str(current_restart_median))
         print("dino_area_median: " + str(current_dino_median))
 
         # Update previous values
         prev_low_median = current_low_median
-        prev_high_median = current_high_median
         prev_restart_median = current_restart_median
         prev_dino_median = current_dino_median
