@@ -207,6 +207,11 @@ def eval_genomes(genomes, config):
         textRect = text.get_rect()
         textRect.center = (1000, 40)
         SCREEN.blit(text, textRect)
+        text = font.render("Generation: " + str(points), True, (0, 0, 0))
+        textRect = text.get_rect()
+        textRect.center = (1000, 40)
+        SCREEN.blit(text, textRect)
+
 
     def background():
         global x_pos_bg, y_pos_bg
@@ -224,11 +229,9 @@ def eval_genomes(genomes, config):
                 run = False
 
         SCREEN.fill((255, 255, 255))
-        userInput = pygame.key.get_pressed()
 
-        for dino in
-        dinos.draw(SCREEN)
-        player.update(userInput)
+        for dino in dinos:
+            dino.draw(SCREEN)
 
         if len(obstacles) == 0:
             if random.randint(0, 2) == 0:
@@ -241,9 +244,10 @@ def eval_genomes(genomes, config):
         for obstacle in obstacles:
             obstacle.draw(SCREEN)
             obstacle.update()
-            if player.dino_rect.colliderect(obstacle.rect):
-                pygame.time.delay(2000)
-
+            for dino in dinos:
+                if dino.dino_rect.colliderect(obstacle.rect):
+                    # Dino has been killed
+                    dinos.remove(dino)
         background()
 
         cloud.draw(SCREEN)
@@ -255,6 +259,7 @@ def eval_genomes(genomes, config):
         pygame.display.update()
 
 
+"""
 def menu(death_count):
     global points
     run = True
@@ -280,6 +285,5 @@ def menu(death_count):
                 run = False
             if event.type == pygame.KEYDOWN:
                 main()
-
-
-menu(death_count=0)
+"""
+# menu(death_count=0)

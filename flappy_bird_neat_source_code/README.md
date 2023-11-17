@@ -1,50 +1,18 @@
-# AutoFlappy
-Genetic Algorithm trains NN to play Flappy like game.
+[![Run on Repl.it](https://repl.it/badge/github/techwithtim/NEAT-Flappy-Bird)](https://repl.it/github/techwithtim/NEAT-Flappy-Bird)
+# NEAT-Flappy-Bird
+An AI that plays flappy bird! Using the NEAT python module.
 
-# Installation
+# Instructions
+Simply run *flappy_bird.py* and watch an AI start training itself to play the game of flappy bird!
 
-## Prerequisites
+# Video Tutorial
 
-In order to compile this project you will need to:
- - have [SFML](https://www.sfml-dev.org/index.php) installed on your system. If you don't know how to do it see [this link](https://www.sfml-dev.org/tutorials/2.5/#getting-started).
- - have [CMake](https://cmake.org/) installed
+You can view on the details of this project here: https://www.youtube.com/watch?v=OGHA-elMrxI
 
-## Compilation
+# Run in Gitpod
 
-Detailed explanation [here](https://preshing.com/20170511/how-to-build-a-cmake-based-project/)
+You can also run NEAT-Flappy-Bird in Gitpod, a free online dev environment for GitHub:
 
-### On Linux with `install.sh`
-- Go in the repo folder
+If you're intersted in a paid subscription with GitPod use the coupon code: TECHWITHTIM19
 
-`cd the/repo/location`
-
-- Execute `install.sh` script
-
-`./install.sh`
-
-- To run the compiled binary:
-
-`./AutoFlappy`
-
-### On Windows with CMake GUI and Visual Studio
- - Install the right SFML version or compile it (see [this](https://www.sfml-dev.org/tutorials/2.5/start-vc.php))
- - Run CMake
- - Select the repo location
- 
-![Cmake 1](https://github.com/johnBuffer/AntSimulator/blob/master/img/cmake_1.PNG)
- - Click on `Configure`, if you have installed the `x64` version of SFML, in the pop up window select `x64` in the `Optionnal platform for generator` drop down
-
-![Cmake 2](https://github.com/johnBuffer/AntSimulator/blob/master/img/cmake_2.PNG)
- - Click on `Finish`
- - Click on `Generate`
-
-![Cmake 3](https://github.com/johnBuffer/AntSimulator/blob/master/img/cmake_3.PNG)
- - You can now open the generated project and build it.
-
-# Commands
-
-|Command|Action|
-|---|---|
-|**Space**|Toggle slowmotion|
-|**E**|Toggle max speed mode|
-
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/techwithtim/NEAT-Flappy-Bird/blob/master/flappy_bird.py)
