@@ -99,14 +99,21 @@ class Dinosaur:
             self.dino_duck = False
             self.dino_run = False
             self.dino_jump = True
+            self.dino_fall = False
         elif aiInput[1] > 0.5 and not self.dino_jump:
             self.dino_duck = True
             self.dino_run = False
             self.dino_jump = False
+            self.dino_fall = False
+        elif  aiInput[1] > 0.5 and self.dino_jump:
+            self.dino_duck = False
+            self.dino_run = False
+            self.dino_fall = True
         elif not (self.dino_jump or aiInput[1] > 0.5):
             self.dino_duck = False
             self.dino_run = True
             self.dino_jump = False
+            self.dino_fall = False
 
 
     def duck(self):
@@ -269,20 +276,7 @@ def main():
         clock.tick(30)
         pygame.display.update()
 
-def eval_genomes():
-    global game_speed, x_pos_bg, y_pos_bg, points, obstacles
-    run = True
-    clock = pygame.time.Clock()
-    dinos = [Dinosaur() for x in range(100)]
-    cloud = Cloud()
-    game_speed = 20
-    x_pos_bg = 0
-    y_pos_bg = 380
-    points = 0
-    font = pygame.font.Font('freesansbold.ttf', 20)
-    obstacles = []
-    death_count = 0
-
+def eval_genomes(genomes, config):
     def score():
         global points, game_speed
         points += 1
@@ -304,17 +298,45 @@ def eval_genomes():
             x_pos_bg = 0
         x_pos_bg -= game_speed
 
-    while len(dinos) > 0:
+    global game_speed, x_pos_bg, y_pos_bg, points, obstacles
+    run = True
+    clock = pygame.time.Clock()
+    dinos = []
+    nets = []
+    ge = []
+    cloud = Cloud()
+    game_speed = 20
+    x_pos_bg = 0
+    y_pos_bg = 380
+    points = 0
+    font = pygame.font.Font('freesansbold.ttf', 20)
+    obstacles = []
+    for genome_id, genome in genomes:
+        genome.fitness = 0  # start with fitness level of 0
+        net = neat.nn.FeedForwardNetwork.create(genome, config)
+        nets.append(net)
+        dinos.append(Dinosaur())
+        ge.append(genome)
+
+    run = True
+    while run and len(dinos) > 0:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                exit()
+                pygame.quit()
+                quit()
+                break
 
         SCREEN.fill((255, 255, 255))
         userInput = pygame.key.get_pressed()
 
-        for dino in dinos:
+        for x, dino in enumerate(dinos):
+            ge[x].fitness += 0.1
             dino.draw(SCREEN)
-            dino.agent_update([random.randint(0, 10) / 10 for x in range(2)])
+
+            output = nets[dinos.index(dino)].activate(
+                (dino.dino_rect.y, obstacles[0].rect.y, obstacles[0].rect.x, obstacles[0].rect.width, obstacles[0].rect.height))
+
+
 
         if len(obstacles) == 0:
             if random.randint(0, 2) == 0:
