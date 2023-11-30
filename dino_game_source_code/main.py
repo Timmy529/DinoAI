@@ -43,6 +43,7 @@ class Dinosaur:
         self.dino_duck = False
         self.dino_run = True
         self.dino_jump = False
+        self.dino_fall = False
 
         self.step_index = 0
         self.jump_vel = self.JUMP_VEL
@@ -66,14 +67,21 @@ class Dinosaur:
             self.dino_duck = False
             self.dino_run = False
             self.dino_jump = True
+            self.dino_fall = False
         elif userInput[pygame.K_DOWN] and not self.dino_jump:
             self.dino_duck = True
             self.dino_run = False
             self.dino_jump = False
+            self.dino_fall = False
+        elif userInput[pygame.K_DOWN] and self.dino_jump:
+            self.dino_duck = False
+            self.dino_run = False
+            self.dino_fall = True
         elif not (self.dino_jump or userInput[pygame.K_DOWN]):
             self.dino_duck = False
             self.dino_run = True
             self.dino_jump = False
+            self.dino_fall = False
 
     def agent_update(self, aiInput):
         if self.dino_duck:
@@ -118,9 +126,12 @@ class Dinosaur:
         self.image = self.jump_img
         if self.dino_jump:
             self.dino_rect.y -= self.jump_vel * 4
-            self.jump_vel -= 0.8
-        if self.jump_vel < - self.JUMP_VEL:
+            self.jump_vel -= 0.8 if not self.dino_fall else 3.2
+            if self.jump_vel < - self.JUMP_VEL:
+                self.jump_vel = - self.JUMP_VEL
+        if self.dino_rect.y >= 310:
             self.dino_jump = False
+            self.dino_fall = False
             self.jump_vel = self.JUMP_VEL
 
     def draw(self, SCREEN):
@@ -208,7 +219,7 @@ def main():
         if points % 100 == 0:
             game_speed += 1
 
-        text = font.render("Points: " + str(points), True, (0, 0, 0))
+        text = font.render("Points: " + str(player.dino_rect.y), True, (0, 0, 0))
         textRect = text.get_rect()
         textRect.center = (1000, 40)
         SCREEN.blit(text, textRect)
@@ -330,6 +341,9 @@ def eval_genome():
 
 while True:
     main()
+
+
+
 """
 def menu(death_count):
     global points
