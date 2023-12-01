@@ -223,21 +223,15 @@ def eval_genomes(genomes, config):
         textRect.center = (1000, 40)
         SCREEN.blit(text, textRect)
 
-        text = font.render("Generation: " + str(generation), True, (0, 0, 0))
+        text = font.render("Generation: " + str(generation), True, (255, 255, 255))
         textRect = text.get_rect()
         textRect.center = (1000, 80)
         SCREEN.blit(text, textRect)
 
-        text = font.render("Alive: " + str(len(dinos)), True, (0, 0, 0))
+        text = font.render("Alive: " + str(len(dinos)), True, (255, 255, 255))
         textRect = text.get_rect()
         textRect.center = (1000, 120)
         SCREEN.blit(text, textRect)
-
-        if len(obstacles) != 0:
-            text = font.render("Obstacle: " + str(obstacles[0].rect.x)+", "+str(obstacles[0].rect.y)+", "+str(obstacles[0].rect.width)+", "+str(obstacles[0].rect.height), True, (0, 0, 0))
-            textRect = text.get_rect()
-            textRect.center = (940, 160)
-            SCREEN.blit(text, textRect)
 
     def background():
         global x_pos_bg, y_pos_bg
