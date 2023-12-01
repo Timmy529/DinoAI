@@ -313,7 +313,7 @@ def eval_genomes(genomes, config):
 
         score()
 
-        clock.tick(90)
+        clock.tick(30)
         pygame.display.update()
 
 
