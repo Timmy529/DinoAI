@@ -31,7 +31,7 @@ CLOUD = pygame.image.load(os.path.join("Assets/Other", "Cloud.png"))
 
 BG = pygame.image.load(os.path.join("Assets/Other", "Track.png"))
 
-global generation
+global generation, max_score
 
 class Dinosaur:
     X_POS = 80
@@ -136,7 +136,7 @@ class Dinosaur:
         self.image = self.jump_img
         if self.dino_jump:
             self.dino_rect.y -= self.jump_vel * 4
-            self.jump_vel -= 0.8 if not self.dino_fall else 3.2
+            self.jump_vel -= 0.8 if not self.dino_fall else 0.8 * 10
             if self.jump_vel < - self.JUMP_VEL:
                 self.jump_vel = - self.JUMP_VEL
         if self.dino_rect.y >= 310:
@@ -215,24 +215,31 @@ def eval_genomes(genomes, config):
     global generation
     generation += 1
     def score():
-        global points, game_speed, generation
+        global points, game_speed, generation, max_score
         points += 1
         if points % 100 == 0:
             game_speed += 1
+        if max_score < points:
+            max_score = points
 
-        text = font.render("Points: " + str(points), True, (255, 255, 255))
+        text = font.render("High Score: " + str(max_score), True, (255, 255, 255))
         textRect = text.get_rect()
         textRect.center = (1000, 40)
         SCREEN.blit(text, textRect)
 
+        text = font.render("Points: " + str(points), True, (255, 255, 255))
+        textRect = text.get_rect()
+        textRect.center = (1000, 70)
+        SCREEN.blit(text, textRect)
+
         text = font.render("Generation: " + str(generation), True, (255, 255, 255))
         textRect = text.get_rect()
-        textRect.center = (1000, 80)
+        textRect.center = (1000, 100)
         SCREEN.blit(text, textRect)
 
         text = font.render("Alive: " + str(len(dinos)), True, (255, 255, 255))
         textRect = text.get_rect()
-        textRect.center = (1000, 120)
+        textRect.center = (1000, 130)
         SCREEN.blit(text, textRect)
 
     def background():
@@ -318,7 +325,7 @@ def eval_genomes(genomes, config):
 
 
 def run(config_file):
-    global generation
+    global generation, max_score
     """
     runs the NEAT algorithm to train a neural network to play flappy bird.
     :param config_file: location of config file
@@ -338,7 +345,7 @@ def run(config_file):
     # p.add_reporter(neat.Checkpointer(5))
 
     # Run for up to 50 generations.
-    generation = 0
+    generation = max_score = 0
     winner = p.run(eval_genomes, 100)
 
     # show final stats
