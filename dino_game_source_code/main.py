@@ -291,7 +291,7 @@ def eval_genomes(genomes, config):
             if not len(obstacles) == 0:
                 output = nets[dinos.index(dino)].activate(
                     (dino.dino_rect.y, obstacles[0].rect.y, obstacles[0].rect.x, obstacles[0].rect.width,
-                     obstacles[0].rect.height), game_speed)
+                     obstacles[0].rect.height, game_speed))
 
                 dino.agent_update(output)
 
