@@ -31,12 +31,13 @@ CLOUD = pygame.image.load(os.path.join("Assets/Other", "Cloud.png"))
 
 BG = pygame.image.load(os.path.join("Assets/Other", "Track.png"))
 
+global generation
 
 class Dinosaur:
     X_POS = 80
     Y_POS = 310
     Y_POS_DUCK = 340
-    JUMP_VEL = 8.5
+    JUMP_VEL = 7.5
 
     def __init__(self):
         self.duck_img = DUCKING
@@ -198,7 +199,7 @@ class Bird(Obstacle):
     def __init__(self, image):
         self.type = 0
         super().__init__(image, self.type)
-        self.rect.y = 250
+        self.rect.y = 240
         self.index = 0
 
     def draw(self, SCREEN):
@@ -209,8 +210,10 @@ class Bird(Obstacle):
 
 
 def eval_genomes(genomes, config):
+    global generation
+    generation += 1
     def score():
-        global points, game_speed
+        global points, game_speed, generation
         points += 1
         if points % 100 == 0:
             game_speed += 1
@@ -219,6 +222,22 @@ def eval_genomes(genomes, config):
         textRect = text.get_rect()
         textRect.center = (1000, 40)
         SCREEN.blit(text, textRect)
+
+        text = font.render("Generation: " + str(generation), True, (0, 0, 0))
+        textRect = text.get_rect()
+        textRect.center = (1000, 80)
+        SCREEN.blit(text, textRect)
+
+        text = font.render("Alive: " + str(len(dinos)), True, (0, 0, 0))
+        textRect = text.get_rect()
+        textRect.center = (1000, 120)
+        SCREEN.blit(text, textRect)
+
+        if len(obstacles) != 0:
+            text = font.render("Obstacle: " + str(obstacles[0].rect.x)+", "+str(obstacles[0].rect.y)+", "+str(obstacles[0].rect.width)+", "+str(obstacles[0].rect.height), True, (0, 0, 0))
+            textRect = text.get_rect()
+            textRect.center = (940, 160)
+            SCREEN.blit(text, textRect)
 
     def background():
         global x_pos_bg, y_pos_bg
@@ -269,7 +288,7 @@ def eval_genomes(genomes, config):
                 obstacles.append(Bird(BIRD))
 
         for x, dino in enumerate(dinos):
-            ge[x].fitness += 0.1
+            ge[x].fitness = points
             dino.draw(SCREEN)
 
             if not len(obstacles) == 0:
@@ -297,11 +316,12 @@ def eval_genomes(genomes, config):
 
         score()
 
-        clock.tick(30)
+        clock.tick(90)
         pygame.display.update()
 
 
 def run(config_file):
+    global generation
     """
     runs the NEAT algorithm to train a neural network to play flappy bird.
     :param config_file: location of config file
@@ -321,7 +341,8 @@ def run(config_file):
     # p.add_reporter(neat.Checkpointer(5))
 
     # Run for up to 50 generations.
-    winner = p.run(eval_genomes, 50)
+    generation = 0
+    winner = p.run(eval_genomes, 100)
 
     # show final stats
     print('\nBest genome:\n{!s}'.format(winner))
