@@ -169,7 +169,7 @@ class Obstacle:
     def __init__(self, image, type):
         self.image = image
         self.type = type
-        self.rect = self.image[self.type].get_rect()
+        self.rect: pygame.Rect = self.image[self.type].get_rect()
         self.rect.x = SCREEN_WIDTH
 
     def update(self):
@@ -199,13 +199,15 @@ class Bird(Obstacle):
     def __init__(self, image):
         self.type = 0
         super().__init__(image, self.type)
-        self.rect.y = 240
+        self.orig_height = self.rect.height
+        self.rect.h = 325
         self.index = 0
 
-    def draw(self, SCREEN):
+    def draw(self, SCREEN: pygame.Surface):
         if self.index >= 9:
             self.index = 0
-        SCREEN.blit(self.image[self.index // 5], self.rect)
+        #SCREEN.fill((0, 0, 255), self.rect)
+        SCREEN.blit(self.image[self.index // 5], (self.rect.bottomleft[0], self.rect.bottomleft[1] - self.orig_height))
         self.index += 1
 
 
@@ -280,6 +282,7 @@ def eval_genomes(genomes, config):
                 obstacles.append(LargeCactus(LARGE_CACTUS))
             elif random.randint(0, 2) == 2:
                 obstacles.append(Bird(BIRD))
+            #obstacles.append(Bird(BIRD))
 
         for x, dino in enumerate(dinos):
             ge[x].fitness = points
