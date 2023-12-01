@@ -218,7 +218,7 @@ def eval_genomes(genomes, config):
         if points % 100 == 0:
             game_speed += 1
 
-        text = font.render("Points: " + str(points), True, (0, 0, 0))
+        text = font.render("Points: " + str(points), True, (255, 255, 255))
         textRect = text.get_rect()
         textRect.center = (1000, 40)
         SCREEN.blit(text, textRect)
@@ -277,7 +277,7 @@ def eval_genomes(genomes, config):
                 quit()
                 break
 
-        SCREEN.fill((255, 255, 255))
+        SCREEN.fill((32, 32, 32))
 
         if len(obstacles) == 0:
             if random.randint(0, 2) == 0:
